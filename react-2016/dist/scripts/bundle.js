@@ -32071,12 +32071,21 @@ module.exports = Header;
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
+var username = sessionStorage.getItem("username");
 
+if (!username) {
+	username = "Guest";
+}
 var Home = React.createClass({displayName: "Home",
 	render: function() {
+		var token = sessionStorage.getItem("authToken");
 		return (
 				React.createElement("div", {className: "jumbotron"}, 
-					React.createElement("h1", null, "Home ^_^")
+
+					React.createElement("h4", null, "Welcome ", username), 
+					React.createElement("br", null), 
+					React.createElement("h5", null, " Your token is ", token, " ")
+
 				)
 		);
 	}
@@ -32093,19 +32102,110 @@ var Link = Router.Link;
 
 
 var Login = React.createClass({displayName: "Login",
+	SetInitialState: function() {
+        return {
+            username:null
+            , password:null
+        }
+    }
+    , userChangeHandler: function(event) {
+        this.setState({username: event.target.value});
+    }
 
-	render: function() {
-		var style = {
-			color: 'red',
-		};
+    , passwordChangeHandler: function(event) {
+        this.setState({password: event.target.value});
+    }
 
-		var background_style = {
-			backgroundImage: 'url(images/background1.jpg)'
-		};
+    , formSubmitHandler: function(event) {
+        event.preventDefault();
+        console.log(this.state);
 
+        //  setRequestHeader for CSRF Token - done but useless :)
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                    function getCookie(name) {
+                        var cookieValue = null;
+                        if (document.cookie && document.cookie != '') {
+                            var cookies = document.cookie.split(';');
+                            for (var i = 0; i < cookies.length; i++) {
+                                var cookie = jQuery.trim(cookies[i]);
+                                // Does this cookie string begin with the name we want?
+                                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                        // Only send the token to relative URLs i.e. locally.
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    }
+                console.log("CSRF Token: ",getCookie('csrftoken'));
+                toastr.success('CSRF Token:' + getCookie('csrftoken'));
+                }
+            }
+        });
+        
+        // AJAX CALL for Token Authorization - WORKING
+        $.ajax({
+            url:'http://localhost:8000/api/v1/login/'
+            , type: 'POST'
+            , data: this.state
+            , success: function() {
+                console.log("Token succesfully received from (http://localhost:8000/api/v1/login/)!");
+            }
+        }).then(function(data) {
+            console.log("Authentication Token: ", data.token);
+            sessionStorage.setItem("authToken", data.token);
+            var tokennumber = sessionStorage.getItem("authToken");
+            toastr.info('Authentication Token:' + tokennumber);
+        });
+        
+
+        // AJAX CALL for LOGIN - NOT WORKING!~
+        
+        $.ajax({
+            beforeSend: function (xhr) {
+                var tokennumber = sessionStorage.getItem("authToken");
+                xhr.setRequestHeader('Authorization', 'Token ' + tokennumber);
+                console.log('Token Authorization Set as:' + tokennumber);
+            }
+            , url:'http://localhost:8000/user/login/'
+            , type: 'POST'
+            , data: this.state
+            , success: function() {
+                alert('success http://localhost:8000/user/login/ ');
+            }
+        }).then(function(data) {
+            //sessionStorage.setItem('authToken', data.token);
+            //redirect to homepage
+        });
+    }
+    , render: function() {
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+        var csrftokennumber = getCookie('csrftoken');
+        
 		return (
-			
-			React.createElement("div", {className: "container container-table all-centered"}, 
+            React.createElement("div", {className: "container container-table all-centered"}, 
         		React.createElement("div", {className: "row"}, 
         			React.createElement("div", {className: "col-xs-12 text-center"}, 
         				React.createElement("image", {src: "images/logo10.png"})
@@ -32113,20 +32213,21 @@ var Login = React.createClass({displayName: "Login",
             		React.createElement("div", {className: "col-xs-4 col-xs-offset-4 form-bg text-center"}, 
                 		React.createElement("h4", null, " Login to your account"), 
                 		React.createElement("br", null), 
-                		React.createElement("form", {method: "post"}, 
+                		React.createElement("form", null, 
+                            React.createElement("input", {type: "hidden", name: "csrfmiddlewaretoken", value: csrftokennumber}), 
                 			React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "text", className: "form-control", placeholder: "Username", name: "username", id: "username"})
+    							React.createElement("input", {type: "text", className: "form-control", name: "username", placeholder: "Username", onChange: this.userChangeHandler})
     						), 
     						React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "password", className: "form-control", name: "password", id: "password", placeholder: "Password"})
+    							React.createElement("input", {type: "password", className: "form-control", name: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
     						), 
     						React.createElement("div", {className: "form-group"}, 
-                        		React.createElement("input", {type: "submit", className: "btn btn-primary btn-block", value: "Login"})
+                        		React.createElement("button", {name: "submit", className: "btn btn-primary btn-block", onClick: this.formSubmitHandler}, "Login")
                     		)
     					)
     				), 
                     React.createElement("div", {className: "col-md-4 col-md-offset-4 form-bg text-center"}, 
-                        "Don't have an account? ", React.createElement(Link, {to: "register"}, " Sign up ")
+                        "Dont have an account? ", React.createElement(Link, {to: "register"}, " Sign up ")
                     )
     			)
     		)
@@ -32135,6 +32236,8 @@ var Login = React.createClass({displayName: "Login",
 });
 
 module.exports = Login;
+
+// helloooooo
 
 },{"react":196,"react-router":27}],202:[function(require,module,exports){
 "use strict";
@@ -32165,8 +32268,46 @@ var Link = Router.Link;
 
 
 var Register = React.createClass({displayName: "Register",
+	SetInitialState: function() {
+        return {
+            username:null
+            , password:null
+            , email:null
+        }
+    }
+    , userChangeHandler: function(event) {
+        this.setState({username: event.target.value});
+    }
 
-	render: function() {
+    , passwordChangeHandler: function(event) {
+        this.setState({password: event.target.value});
+    }
+
+    , emailChangeHandler: function(event) {
+        this.setState({email: event.target.value});
+    }
+
+    , formSubmitHandler: function(event) {
+        event.preventDefault();
+        console.log(this.state);
+
+        // AJAX CALL for REGISTRATION - WORKING!~
+
+        $.ajax({
+            url:'http://localhost:8000/api/v1/users/'
+            , type: 'POST'
+            , data: this.state
+            , success: function() {
+                toastr.success("User registration successfully executed!");
+            }
+            , error: function() {
+                toastr.error("User registration failed! Username already in the database!");
+            }
+        }).then(function(data) {
+            //toastr.success("User registration successfully executed!")
+        })
+    }
+    , render: function() {
 		return (
 			React.createElement("div", {className: "container container-table  all-centered"}, 
         		React.createElement("div", {className: "row"}, 
@@ -32176,21 +32317,18 @@ var Register = React.createClass({displayName: "Register",
             		React.createElement("div", {className: "col-md-4 col-md-offset-4 form-bg text-center"}, 
                 		React.createElement("h4", null, " Register your account"), 
                 		React.createElement("br", null), 
-                		React.createElement("form", {method: "post"}, 
+                		React.createElement("form", null, 
                 			React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "text", className: "form-control", placeholder: "Username", name: "username", id: "username"})
+    							React.createElement("input", {type: "text", className: "form-control", placeholder: "Username", name: "username", id: "username", onChange: this.userChangeHandler})
     						), 
     						React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "password", className: "form-control", name: "password", id: "password", placeholder: "Password"})
+    							React.createElement("input", {type: "password", className: "form-control", name: "password", id: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
     						), 
                             React.createElement("div", {className: "form-group"}, 
-                                React.createElement("input", {type: "password", className: "form-control", name: "password2", id: "password2", placeholder: "Repeat Password"})
-                            ), 
-                            React.createElement("div", {className: "form-group"}, 
-                                React.createElement("input", {type: "text", className: "form-control", name: "email", id: "email", placeholder: "E-mail"})
+                                React.createElement("input", {type: "text", className: "form-control", name: "email", id: "email", placeholder: "E-mail", onChange: this.emailChangeHandler})
                             ), 
     						React.createElement("div", {className: "form-group"}, 
-                        		React.createElement("input", {type: "submit", className: "btn btn-success btn-block", value: "Register"})
+                        		React.createElement("button", {name: "submit", className: "btn btn-success btn-block", onClick: this.formSubmitHandler}, " Register ")
                     		), 
                             React.createElement("div", {className: "form-group"}, 
                                 "By signing up, you agree to our", 
