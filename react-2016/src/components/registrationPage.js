@@ -6,8 +6,46 @@ var Link = Router.Link;
 
 
 var Register = React.createClass({
+	SetInitialState: function() {
+        return {
+            username:null
+            , password:null
+            , email:null
+        }
+    }
+    , userChangeHandler: function(event) {
+        this.setState({username: event.target.value});
+    }
 
-	render: function() {
+    , passwordChangeHandler: function(event) {
+        this.setState({password: event.target.value});
+    }
+
+    , emailChangeHandler: function(event) {
+        this.setState({email: event.target.value});
+    }
+
+    , formSubmitHandler: function(event) {
+        event.preventDefault();
+        console.log(this.state);
+
+        // AJAX CALL for REGISTRATION - WORKING!~
+
+        $.ajax({
+            url:'http://localhost:8000/api/v1/users/'
+            , type: 'POST'
+            , data: this.state
+            , success: function() {
+                toastr.success("User registration successfully executed!");
+            }
+            , error: function() {
+                toastr.error("User registration failed! Username already in the database!");
+            }
+        }).then(function(data) {
+            //toastr.success("User registration successfully executed!")
+        })
+    }
+    , render: function() {
 		return (
 			<div className="container container-table  all-centered">
         		<div className="row">
@@ -17,21 +55,18 @@ var Register = React.createClass({
             		<div className="col-md-4 col-md-offset-4 form-bg text-center">
                 		<h4> Register your account</h4>
                 		<br />
-                		<form method="post">
+                		<form>
                 			<div className="form-group">
-    							<input type="text" className="form-control" placeholder="Username" name="username" id="username" />
+    							<input type="text" className="form-control" placeholder="Username" name="username" id="username"  onChange={this.userChangeHandler} />
     						</div>
     						<div className="form-group">
-    							<input type="password" className="form-control"  name="password" id="password"  placeholder="Password" />
+    							<input type="password" className="form-control"  name="password" id="password"  placeholder="Password"  onChange={this.passwordChangeHandler} />
     						</div>
                             <div className="form-group">
-                                <input type="password" className="form-control"  name="password2" id="password2"  placeholder="Repeat Password" />
-                            </div>
-                            <div className="form-group">
-                                <input type="text" className="form-control"  name="email" id="email"  placeholder="E-mail" />
+                                <input type="text" className="form-control"  name="email" id="email"  placeholder="E-mail"  onChange={this.emailChangeHandler} />
                             </div>
     						<div className="form-group">
-                        		<input type="submit" className="btn btn-success btn-block" value="Register" />
+                        		<button name="submit" className="btn btn-success btn-block" onClick={this.formSubmitHandler}> Register </button>
                     		</div>
                             <div className="form-group">
                                 By signing up, you agree to our
