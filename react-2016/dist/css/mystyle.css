@@ -78,3 +78,13 @@ ul.nav-bar li {
 .joke-container {
     background: #CCCCCC
 }
+
+/*.navbar {
+    outline: red solid 0px;
+    background: red;
+    border: 0px;
+}
+*/
+.navbar > ul > li > a {
+
+}
