@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Pantagram :: React</title>
+    <link rel="stylesheet" href="css/bundle.css" />
+    <link rel="stylesheet" href="css/mystyle.css" />
+  </head>
+  <body class="body_blur">
+    <!-- <div id="app"></div> -->
+    <table class="joke-table">
+    	<thead>
+			<tr>
+				<td> User </td>
+				<td> Photo </td>
+			</tr>    	
+    	</thead>
+    	<tbody>
+    		
+    	</tbody>
+    </table>
+    <script src="scripts/bundle.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+    <script type="text/javascript">
+    var token = jQuery.ajax ({
+        "type":"POST"
+        , "url":"http://localhost:8000/api/v1/login/"
+        , "data": { "username" : "constantin", "password" : "internet"}
+        , success: function(token) {
+            debugger;
+            for (var key in token) {
+                var item = data[key];
+                var template = jQuery("<tr><td class='category-container'></td><td class='joke-container'></td></tr>");
+                template.find(".category-container").html(token[key]);
+                jQuery(".joke-table > tbody").append(template); 
+            }
+                  
+        }
+    });
+    var data = jQuery.ajax({
+  		"type":"GET"
+    	, "url":"http://localhost:8000/api/v1/photos/"
+        , beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Token 27f6355df329e1649b74c65e7c971e3a55fedc75");
+        }
+    	, success: function(data) {
+    		
+    		// debugger;
+    		for (var key in data) {
+    		  var item = data[key];
+    		  var template = jQuery("<tr><td class='category-container'></td><td class='joke-container'></td></tr>");
+    		  template.find(".category-container").html(item.user);
+    		  template.find(".joke-container").html(item.photo);
+
+    		  jQuery(".joke-table > tbody").append(template);
+    		}
+
+    	}
+    });
+    </script>
+  </body>
+</html>
