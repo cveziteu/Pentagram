@@ -32043,23 +32043,25 @@ var Header = React.createClass({displayName: "Header",
       paddingTop: '3px',
       borderRight: '1px solid #DDDDDD',
       paddingLeft: '30px',
-      paddingRight: '30px'
+      paddingRight: '30px',
+      color: '#000000'
     };
 
 
 		return (
-          React.createElement("div", {className: "col-lg-12"}, 
-              React.createElement("nav", {className: "navbar navbar-default"}, 
-                React.createElement("div", {className: "container-fluid"}, 
-                    React.createElement("ul", {className: "nav navbar-nav"}, 
-                      React.createElement("li", null, React.createElement(Link, {to: "app"}, React.createElement("image", {src: "images/logo101.png", height: "25px"}))), 
-                      React.createElement("li", {style: listyle}, React.createElement(Link, {to: "app"}, "Home")), 
-                      React.createElement("li", {style: listyle}, React.createElement(Link, {to: "login"}, "Login")), 
-                      React.createElement("li", {style: listyle}, React.createElement(Link, {to: "register"}, "Register"))
-                    )
-                )
+        React.createElement("div", {className: "navbar-fixed"}, 
+          React.createElement("nav", null, 
+            React.createElement("div", {className: "nav-wrapper"}, 
+              React.createElement(Link, {to: "app", className: "brand-logo left"}, React.createElement("image", {src: "images/logo101.png", height: "25px"})), 
+              React.createElement("ul", {className: "right hide-on-med-and-down"}, 
+                React.createElement("li", null, React.createElement(Link, {to: "login"}, React.createElement("i", {className: "material-icons left"}, "supervisor_account"), "Login")), 
+                React.createElement("li", null, React.createElement(Link, {to: "register"}, React.createElement("i", {className: "material-icons left"}, "assignment"), "Register")), 
+                React.createElement("li", null, React.createElement(Link, {to: "about"}, React.createElement("i", {className: "material-icons"}, "settings"))), 
+                React.createElement("li", null, React.createElement(Link, {to: "about"}, React.createElement("i", {className: "material-icons"}, "power_settings_new"), " "))
               )
+            )
           )
+        )
 		);
 	}
 });
@@ -32122,33 +32124,33 @@ var Login = React.createClass({displayName: "Login",
 
         //  setRequestHeader for CSRF Token - done but useless :)
 
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
-                    function getCookie(name) {
-                        var cookieValue = null;
-                        if (document.cookie && document.cookie != '') {
-                            var cookies = document.cookie.split(';');
-                            for (var i = 0; i < cookies.length; i++) {
-                                var cookie = jQuery.trim(cookies[i]);
-                                // Does this cookie string begin with the name we want?
-                                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                    break;
-                                }
-                            }
-                        }
-                        return cookieValue;
-                    }
-                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                        // Only send the token to relative URLs i.e. locally.
-                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                    }
-                console.log("CSRF Token: ",getCookie('csrftoken'));
-                toastr.success('CSRF Token:' + getCookie('csrftoken'));
-                }
-            }
-        });
+        // $.ajaxSetup({
+        //     beforeSend: function(xhr, settings) {
+        //         if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+        //             function getCookie(name) {
+        //                 var cookieValue = null;
+        //                 if (document.cookie && document.cookie != '') {
+        //                     var cookies = document.cookie.split(';');
+        //                     for (var i = 0; i < cookies.length; i++) {
+        //                         var cookie = jQuery.trim(cookies[i]);
+        //                         // Does this cookie string begin with the name we want?
+        //                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
+        //                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        //                             break;
+        //                         }
+        //                     }
+        //                 }
+        //                 return cookieValue;
+        //             }
+        //             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        //                 // Only send the token to relative URLs i.e. locally.
+        //                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        //             }
+        //         console.log("CSRF Token: ",getCookie('csrftoken'));
+        //         toastr.success('CSRF Token:' + getCookie('csrftoken'));
+        //         }
+        //     }
+        // });
         
         // AJAX CALL for Token Authorization - WORKING
         $.ajax({
@@ -32174,11 +32176,11 @@ var Login = React.createClass({displayName: "Login",
                 xhr.setRequestHeader('Authorization', 'Token ' + tokennumber);
                 console.log('Token Authorization Set as:' + tokennumber);
             }
-            , url:'http://localhost:8000/user/login/'
+            , url:'http://localhost:8000/admin/login/'
             , type: 'POST'
             , data: this.state
             , success: function() {
-                alert('success http://localhost:8000/user/login/ ');
+                alert('success http://localhost:8000/user/login/');
             }
         }).then(function(data) {
             //sessionStorage.setItem('authToken', data.token);
@@ -32211,7 +32213,7 @@ var Login = React.createClass({displayName: "Login",
         				React.createElement("image", {src: "images/logo10.png"})
         			), 
             		React.createElement("div", {className: "col-xs-4 col-xs-offset-4 form-bg text-center"}, 
-                		React.createElement("h4", null, " Login to your account"), 
+                		React.createElement("h5", null, " Login to your account"), 
                 		React.createElement("br", null), 
                 		React.createElement("form", null, 
                             React.createElement("input", {type: "hidden", name: "csrfmiddlewaretoken", value: csrftokennumber}), 
@@ -32222,7 +32224,10 @@ var Login = React.createClass({displayName: "Login",
     							React.createElement("input", {type: "password", className: "form-control", name: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
     						), 
     						React.createElement("div", {className: "form-group"}, 
-                        		React.createElement("button", {name: "submit", className: "btn btn-primary btn-block", onClick: this.formSubmitHandler}, "Login")
+                        		React.createElement("button", {name: "submit", className: "btn waves-effect waves-light btn-block", onClick: this.formSubmitHandler}, 
+                                    
+                                    "Login"
+                                )
                     		)
     					)
     				), 
@@ -32270,9 +32275,9 @@ var Link = Router.Link;
 var Register = React.createClass({displayName: "Register",
 	SetInitialState: function() {
         return {
-            username:null
-            , password:null
-            , email:null
+            username: null
+            , password: null
+            , email: null
         }
     }
     , userChangeHandler: function(event) {
@@ -32281,6 +32286,10 @@ var Register = React.createClass({displayName: "Register",
 
     , passwordChangeHandler: function(event) {
         this.setState({password: event.target.value});
+    }
+
+    , password2ChangeHandler: function(event) {
+        this.setState({password2: event.target.value});
     }
 
     , emailChangeHandler: function(event) {
@@ -32292,20 +32301,37 @@ var Register = React.createClass({displayName: "Register",
         console.log(this.state);
 
         // AJAX CALL for REGISTRATION - WORKING!~
-
-        $.ajax({
-            url:'http://localhost:8000/api/v1/users/'
-            , type: 'POST'
-            , data: this.state
-            , success: function() {
-                toastr.success("User registration successfully executed!");
-            }
-            , error: function() {
-                toastr.error("User registration failed! Username already in the database!");
-            }
-        }).then(function(data) {
-            //toastr.success("User registration successfully executed!")
-        })
+        if (document.getElementById('username').value.length == 0) {
+            toastr.error("Please enter your username!");
+        }
+        else if (document.getElementById('password').value.length == 0) {
+            toastr.warning("Please enter your password!");
+        }
+        else if (document.getElementById('password2').value.length == 0) {
+            toastr.warning("Please repeat your password!");
+        }
+        else if (document.getElementById('email').value.length == 0) {
+            toastr.warning("Please enter your email!");
+        }
+        else if (this.state.password == this.state.password2) {
+            var user_name = this.state.username;
+            $.ajax({
+                url:'http://localhost:8000/api/v1/users/'
+                , type: 'POST'
+                , data: this.state
+                , success: function() {
+                    toastr.success("User " + user_name + " created successfully!");
+                }
+                , error: function(response) {
+                    console.log(response.responseJSON.username[0]);
+                    toastr.error(response.responseJSON.username[0]);
+                }
+            });
+        }
+        else {
+            toastr.error("Passwords do not match!");
+        }
+        
     }
     , render: function() {
 		return (
@@ -32315,20 +32341,23 @@ var Register = React.createClass({displayName: "Register",
                         React.createElement("image", {src: "images/logo10.png"})
                     ), 
             		React.createElement("div", {className: "col-md-4 col-md-offset-4 form-bg text-center"}, 
-                		React.createElement("h4", null, " Register your account"), 
+                		React.createElement("h5", null, " Register your account"), 
                 		React.createElement("br", null), 
                 		React.createElement("form", null, 
                 			React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "text", className: "form-control", placeholder: "Username", name: "username", id: "username", onChange: this.userChangeHandler})
+    							React.createElement("input", {type: "text", className: "form-control validate", placeholder: "Username", name: "username", id: "username", onChange: this.userChangeHandler})
     						), 
     						React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "password", className: "form-control", name: "password", id: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
+    							React.createElement("input", {type: "password", className: "form-control validate", name: "password", id: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
     						), 
                             React.createElement("div", {className: "form-group"}, 
-                                React.createElement("input", {type: "text", className: "form-control", name: "email", id: "email", placeholder: "E-mail", onChange: this.emailChangeHandler})
+                                React.createElement("input", {type: "password", className: "form-control validate", name: "password2", id: "password2", placeholder: "Repeat Password", onChange: this.password2ChangeHandler})
+                            ), 
+                            React.createElement("div", {className: "form-group"}, 
+                                React.createElement("input", {type: "email", className: "form-control validate", name: "email", id: "email", placeholder: "E-mail", onChange: this.emailChangeHandler})
                             ), 
     						React.createElement("div", {className: "form-group"}, 
-                        		React.createElement("button", {name: "submit", className: "btn btn-success btn-block", onClick: this.formSubmitHandler}, " Register ")
+                        		React.createElement("button", {name: "submit", className: "btn waves-effect waves-light btn-block", onClick: this.formSubmitHandler}, " Register ")
                     		), 
                             React.createElement("div", {className: "form-group"}, 
                                 "By signing up, you agree to our", 
