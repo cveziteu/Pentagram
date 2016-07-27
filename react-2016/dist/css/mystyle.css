@@ -6,10 +6,10 @@ body {
 body.body_blur:before {
     content: "";
     position: absolute;
-    width : 100%;
-    height: 100%;
     background: inherit;
     z-index: -1;
+    width : 100%;
+    height: 100%;
     filter        : blur(10px);
     -moz-filter   : blur(10px);
     -webkit-filter: blur(10px);
@@ -43,10 +43,11 @@ body.body_blur:before {
 }
 
 .all-centered {
-    position: absolute;
+    /*position: absolute;
     top: 40%;
     left: 50%;
-    transform: translate(-50%,-40%);
+    transform: translate(-50%,-40%);*/
+    padding-top: 160px;
 }
 
 ul.nav-bar li {
@@ -87,4 +88,50 @@ ul.nav-bar li {
 */
 .navbar > ul > li > a {
 
+}
+
+.btn {
+    background-color: #337ab7;
+}
+
+
+.btn:hover {
+    background-color: #337ab7;
+}
+
+
+.btn:focus {
+    background-color: #337ab7;
+    color: yellow;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+}
+
+/* label underline focus color */
+.input-field input[type=text]:focus {
+    border-bottom: 1px solid #337ab7;
+    box-shadow: 0 1px 0 0 #337ab7;
+}
+
+nav {
+    background-color: #EEEEEE;
+}
+
+nav ul a {
+    color: #000;
+}
+
+nav ul a:hover {
+    text-decoration: none;
+}
+
+nav ul a.active {
+    text-decoration: none;
+    color: #337ab7;
+}
+
+nav ul a:focus {
+    text-decoration: none;
 }
