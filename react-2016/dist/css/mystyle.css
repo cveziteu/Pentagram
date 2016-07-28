@@ -25,8 +25,6 @@ body.body_blur:before {
     margin-top: 10px;
 }
 
-
-
 .page-bg {
     background-color: #FFF;
     opacity: .9;
@@ -97,6 +95,7 @@ ul.nav-bar li {
 
 .btn:hover {
     background-color: #337ab7;
+    color: yellow;
 }
 
 
@@ -110,14 +109,21 @@ input:-webkit-autofill {
 }
 
 /* label underline focus color */
-.input-field input[type=text]:focus {
+/*.input-field input[type=text]:focus {
     border-bottom: 1px solid #337ab7;
     box-shadow: 0 1px 0 0 #337ab7;
 }
-
+*/
 nav {
     background-color: #EEEEEE;
 }
+
+
+
+nav ul {
+    color: #000;
+}
+
 
 nav ul a {
     color: #000;
@@ -134,4 +140,81 @@ nav ul a.active {
 
 nav ul a:focus {
     text-decoration: none;
+}
+
+li.userinfo {
+    padding-right: 30px;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+/*
+
+    IMAGE BLOCKS STYLES AND SH!TS THAT I DON'T KNOW ABOUT :)))) 
+
+*/
+
+
+.image-gallery-bg {
+    background: rgba(255,255,255,0.5);
+    left: 0;
+    right: 0;
+    margin-top: 50px;
+}
+
+.image-block {
+    float: left;
+    overflow: hidden;
+    margin-top: 30px;
+    position: relative;
+}
+
+.image-block > img {
+    height: 350px;
+    vertical-align: middle;
+    border-radius: 5px;
+    background-color: #000;
+}
+
+
+.image-block > div.img-caption {
+    position: absolute;
+    bottom: 0px;
+    background: rgba(0,0,0,0.5);
+    color: red;
+    width: 96%;
+}
+
+i.my-img-comment-icon {
+    font-size: 35px;
+    vertical-align: middle;
+    overflow: hidden;
+    padding: 8px;
+    padding-left: 40px;
+}
+
+i.my-img-like-icon {
+    font-size: 35px;
+    vertical-align: middle;
+    overflow: hidden;
+    padding: 8px;
+    padding-right: 40px;
+}
+
+.image-block > div.img-caption > div.img-caption-divs > a {
+    font-size: 20px;
+    color: #EEEEEE;
+    text-decoration: none;
+}
+
+
+.image-block > div.img-caption > div.img-caption-divs > a:hover {
+    color: yellow;
+}
+
+
+.image-block > div.img-caption > div.img-caption-divs {
+    float: left;
+    display: inline-block;
+    width: 50%;
 }

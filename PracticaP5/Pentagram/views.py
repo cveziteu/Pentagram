@@ -27,6 +27,7 @@ def users(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes((AllowAny,))
 def photos(request):
     if request.method == 'GET':
         all_photos = Photo.objects.all()

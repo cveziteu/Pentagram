@@ -15,6 +15,7 @@ var routes = (
     <Route name="about" handler={require('./components/about/aboutPage')} />
   	//  Login Page 
     <Route name="login" handler={require('./components/loginPage')} />
+    <Route name="logout" handler={require('./components/logoutPage')} />
   	//  Registration Page 
     <Route name="register" handler={require('./components/registrationPage')} />
     <NotFoundRoute handler={require('./components/notFoundPage')} />

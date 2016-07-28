@@ -9,6 +9,8 @@ var source = require('vinyl-source-stream'); // Use conventional text streams wi
 var concat = require('gulp-concat'); //Concatenates files
 var lint = require('gulp-eslint'); //Lint JS files, including JSX
 
+var debug = require('gulp-debug');
+
 var config = {
     port: 9003,
     devBaseUrl: 'http://localhost',
@@ -46,6 +48,7 @@ gulp.task('open', ['connect'], function() {
 gulp.task('html', function() {
     gulp.src(config.paths.html)
         .pipe(gulp.dest(config.paths.dist))
+        .pipe(debug())
         .pipe(connect.reload());
 });
 
@@ -56,6 +59,7 @@ gulp.task('js', function() {
         .on('error', console.error.bind(console))
         .pipe(source('bundle.js'))
         .pipe(gulp.dest(config.paths.dist + '/scripts'))
+        .pipe(debug())
         .pipe(connect.reload());
 });
 
@@ -70,6 +74,7 @@ gulp.task('css', function() {
 gulp.task('images', function() {
     gulp.src(config.paths.images)
         .pipe(gulp.dest(config.paths.dist + '/images'))
+        .pipe(debug())
         .pipe(connect.reload());
 
     //publish favicon
@@ -90,4 +95,12 @@ gulp.task('watch', function() {
     gulp.watch(config.paths.js, ['js', 'lint']);
 });
 
-gulp.task('default', ['html', 'js', 'css', 'images', 'lint', 'open', 'watch']);
+gulp.task('copyHtml', function() {
+    // copy index.html in /dist folder
+    gulp.src('./src/index.html')
+        .pipe(gulp.dest('./dist'))
+        .pipe(debug())
+        .pipe(connect.reload());
+});
+
+gulp.task('default', ['html','copyHtml', 'js', 'css', 'images', 'lint', 'open', 'watch']);
