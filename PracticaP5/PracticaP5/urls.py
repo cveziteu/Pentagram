@@ -29,11 +29,12 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from Pentagram.views import comments, like, users, photos
+from Pentagram.views import comments, like, users, photos, CustomObtainAuthToken
 from rest_framework.authtoken import views as authtoken_views
 
 urlpatterns = patterns('',
-                       url(r'^api/v1/login/$', authtoken_views.obtain_auth_token),
+                       # url(r'^api/v1/login/$', authtoken_views.obtain_auth_token),
+                       url(r'^api/v1/login/$', CustomObtainAuthToken.as_view()),
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^user/login/', auth_views.login, {'template_name': 'login.html'}, name="login"),
                        url(r'^user/logout/', auth_views.logout, {'next_page': 'homepage'}),  # LOGOUT

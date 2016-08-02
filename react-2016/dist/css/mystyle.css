@@ -157,22 +157,23 @@ li.userinfo {
 
 .image-gallery-bg {
     background: rgba(255,255,255,0.5);
-    left: 0;
-    right: 0;
     margin-top: 50px;
 }
 
 .image-block {
     float: left;
     overflow: hidden;
-    margin-top: 30px;
+    margin-top: 40px;
     position: relative;
+    width: 395px;
+    height: 210px;
+    margin-left: 50px;
 }
 
 .image-block > img {
-    height: 350px;
+    /*height: 350px;*/
     vertical-align: middle;
-    border-radius: 5px;
+/*    border-radius: 5px;*/
     background-color: #000;
 }
 
@@ -181,24 +182,22 @@ li.userinfo {
     position: absolute;
     bottom: 0px;
     background: rgba(0,0,0,0.5);
-    color: red;
-    width: 96%;
+    color: #FFF;
+    width: 100%;
 }
 
 i.my-img-comment-icon {
-    font-size: 35px;
+    font-size: 25px;
     vertical-align: middle;
     overflow: hidden;
     padding: 8px;
-    padding-left: 40px;
 }
 
 i.my-img-like-icon {
-    font-size: 35px;
+    font-size: 25px;
     vertical-align: middle;
     overflow: hidden;
     padding: 8px;
-    padding-right: 40px;
 }
 
 .image-block > div.img-caption > div.img-caption-divs > a {
@@ -210,6 +209,7 @@ i.my-img-like-icon {
 
 .image-block > div.img-caption > div.img-caption-divs > a:hover {
     color: yellow;
+    cursor: pointer;
 }
 
 

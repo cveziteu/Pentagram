@@ -35,6 +35,7 @@ var Login = React.createClass({
             }
         }).then(function(data) {
             sessionStorage.setItem("authToken", data.token);
+            localStorage.setItem("userId", data.id);
             var token = sessionStorage.getItem("authToken");
             console.log("Authentication Token: ", token);
             localStorage.setItem("userName", user_name);

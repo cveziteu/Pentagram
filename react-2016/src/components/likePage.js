@@ -5,23 +5,19 @@ var Router = require('react-router');
 var Link = Router.Link;
 var username = sessionStorage.getItem("userName");
 
-if (!username) {
-	username = "Guest";
-}
 var Home = React.createClass({
 	render: function() {
 
 		var tokenNumber = sessionStorage.getItem("authToken");
 		$.ajaxSetup({
-		    headers: { 'Authorization': tokenNumber }
+		    headers: { 'Authorization': 'Token ' + tokenNumber }
 		});
 		$.ajax({
 			url:'http://localhost:8000/api/v1/photos/'
-            , type: 'GET'
+            , type: 'POST'
             , data: this.state
             , success: function() {
-            	toastr.info(tokenNumber);
-                console.log("GET WORKS!");
+                console.log("POST WORKED!");
             }
         }).then(function(data) {
             // console.log("Authentication Token: ", data.token);

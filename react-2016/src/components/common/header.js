@@ -5,7 +5,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Header = React.createClass({
-	render: function() {
+  render: function() {
     var listyle = {
       fontSize: '18px',
       fontWeight: '400',
@@ -49,18 +49,24 @@ var HeaderLoggedOut = React.createClass({
 
 
 var HeaderLoggedIn = React.createClass({
-  render: function() {
+  LogOutHandler: function(event) {
+    sessionStorage.clear();
+    localStorage.clear();
+    Router.HashLocation.push("login");
+  }
+  , render: function() {
     var user_name = localStorage.getItem("userName");
+    var user_id = localStorage.getItem("userId");
     var style = {
       fontSize: '30px',
       color: '#000'
     };
     return (
       <ul className="right hide-on-med-and-down">
-          <li className="userinfo"> {user_name} </li>
+          <li className="userinfo"> {user_name}({user_id}) </li>
           <li><Link to="about" className="waves-effect waves-light"><i className="material-icons">add</i></Link></li>
           <li><Link to="about" className="waves-effect waves-light"><i className="material-icons">settings</i></Link></li>
-          <li><Link to="logout" className="waves-effect waves-light"><i className="material-icons">power_settings_new</i> </Link></li>;
+          <li onClick={this.LogOutHandler}><a href="" className="waves-effect waves-light"><i className="material-icons">power_settings_new</i></a></li>;
       </ul>
     );
   }

@@ -8,7 +8,7 @@ var Logout = React.createClass({
 	render: function() {
     	sessionStorage.clear();
         localStorage.clear();
-    	Router.HashLocation.push("login");
+    	Router.HashLocation.push("#");
     }
 });
 

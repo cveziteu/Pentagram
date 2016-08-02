@@ -5,6 +5,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 from Pentagram.models import Photo, Comment, Like
 from Pentagram.serializers import UserSerializer, PhotoSerializer, CommentSerializer, LikeSerializer
@@ -43,6 +45,7 @@ def photos(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes((AllowAny,))
 def comments(request, id_photo):
     if request.method == 'GET':
         all_comments = Comment.objects.filter(photo_id=id_photo)
@@ -55,43 +58,10 @@ def comments(request, id_photo):
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=comments_serializer.errors)
 
-#
-# @api_view(['PUT','GET'])
-# def like(request, id_photo):
-#     # if request.method == 'PUT':
-#     #     photo = Photo.objects.get(pk=id_photo)
-#     #     photo.counter_like += 1
-#     #     photo.save()
-#     #     return Response(status=status.HTTP_202_ACCEPTED)
-#
-#     if request.method == 'GET':
-#         id_user = request.user.pk
-#         all_likes = Like.objects.filter(photo=id_photo, user=id_user)
-#         like_serializer = LikeSerializer(all_likes, many=True)
-#         return Response(status=status.HTTP_200_OK, data=like_serializer.data)
-#
-#     if request.method == 'PUT':
-#         id_user = request.user.id
-#         photo = Photo.objects.get(pk=id_photo)
-#         try:
-#             liked_photo = Like.objects.get(photo=id_photo, user=id_user)
-#             if liked_photo.liked == 0:
-#                 liked_photo.liked += 1
-#                 liked_photo.save()
-#                 return Response(status=status.HTTP_202_ACCEPTED)
-#             elif liked_photo.liked == 1:
-#                 liked_photo.liked -= 1
-#                 liked_photo.save()
-#                 return Response(status=status.HTTP_202_ACCEPTED)
-#         except ObjectDoesNotExist:
-#             add_like = Like(user_id=id_user, photo_id=id_photo, liked='1')
-#             add_like.save()
-#             photo.counter_like += 1
-#             photo.save()
-#             return Response(status=status.HTTP_202_ACCEPTED)
 
 
 @api_view(['POST','GET'])
+@permission_classes((AllowAny,))
 def like(request, id_photo):
 
     if request.method == 'GET':
@@ -113,3 +83,9 @@ def like(request, id_photo):
             return Response(status=status.HTTP_201_CREATED)
 
 # all_likes = Like.objects.filter(photo=id_photo).count()
+
+class CustomObtainAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
+        token = Token.objects.get(key=response.data['token'])
+        return Response({'token':token.key, 'id': token.user_id})

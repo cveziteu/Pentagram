@@ -32792,7 +32792,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Header = React.createClass({displayName: "Header",
-	render: function() {
+  render: function() {
     var listyle = {
       fontSize: '18px',
       fontWeight: '400',
@@ -32836,18 +32836,24 @@ var HeaderLoggedOut = React.createClass({displayName: "HeaderLoggedOut",
 
 
 var HeaderLoggedIn = React.createClass({displayName: "HeaderLoggedIn",
-  render: function() {
+  LogOutHandler: function(event) {
+    sessionStorage.clear();
+    localStorage.clear();
+    Router.HashLocation.push("login");
+  }
+  , render: function() {
     var user_name = localStorage.getItem("userName");
+    var user_id = localStorage.getItem("userId");
     var style = {
       fontSize: '30px',
       color: '#000'
     };
     return (
       React.createElement("ul", {className: "right hide-on-med-and-down"}, 
-          React.createElement("li", {className: "userinfo"}, " ", user_name, " "), 
+          React.createElement("li", {className: "userinfo"}, " ", user_name, "(", user_id, ") "), 
           React.createElement("li", null, React.createElement(Link, {to: "about", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "add"))), 
           React.createElement("li", null, React.createElement(Link, {to: "about", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "settings"))), 
-          React.createElement("li", null, React.createElement(Link, {to: "logout", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "power_settings_new"), " ")), ";"
+          React.createElement("li", {onClick: this.LogOutHandler}, React.createElement("a", {href: "", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "power_settings_new"))), ";"
       )
     );
   }
@@ -32863,49 +32869,118 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Home = React.createClass({displayName: "Home",
-	render: function() {
+	getInitialState: function(){
+			return {
+				images: [{
+					"id": 1,
+					"user": 1,
+					"photo": "/media/photos/user_constantin/a70e9548-557e-11e6-8a53-485ab608aba0-background7.jpg"
+				}]
+			};
+	}
+	, componentWillMount: function() {
+		var self = this;
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+            self.setState({images: data});
+		});
+	}
+
+	, PhotoCommentHandler: function(event) {
+		// var photoId = event.target.dataset.id;
+		// Router.HashLocation.push('photo/' + photoId);
+	}
+	,
+	 PhotoLikeHandler: function(event) {
+		// var photoId = event.target.dataset.id;
+		// Router.HashLocation.push('photo/' + photoId);
+	}
+	, render: function() {
+		var self = this;
 
 		var tokenNumber = sessionStorage.getItem("authToken");
 		if (!tokenNumber) {
-			// Router.HashLocation.push("login");
+			Router.HashLocation.push("login");
 		}
-		else {
-			var username = localStorage.getItem("userName");
+		
+		// $.ajaxSetup({
+		//     headers: { 'Authorization': 'Token ' + tokenNumber }
+		// });
+		// $.ajax({
+		// 	url:'http://localhost:8000/api/v1/photos/'
+  //           , type: 'GET'
+  //           , data: this.state
+  //           , success: function() {
+  //               console.log("GET WORKS!");
+  //           }
+  //       }).then(function(data) {
+  //       	// var collection = data;
+  //       	// debugger;
+  //           for (var key in data) {
+  //           	var item = data[key];
+  //           	var template = jQuery("
+  					// <div class='col m4 image-block'>
+  					// 		<img class='col m12 img-thumbnail img-responsive' src='http://127.0.0.1:8000"+item.photo+"' />
+  					// 		<div class='img-caption'><div class='img-caption-divs'>
+  					// 			<a href='#''>
+  					// 				<i class='material-icons my-img-comment-icon'>comments</i>
+  					// 				<span class='hidden-xs'>Comments("+item.id+")</span>
+  					// 			</a>
+  					// 		</div>
+  					// 		<div class='img-caption-divs'>
+  					// 			<a href='' class='right'>
+  					// 				<i class='material-icons my-img-like-icon right'>thumb_up</i>
+  					// 			</a>
+  					// 		</div>
+  					// 	</div>
+  					// </div>");
 
-			if (!username) {
-				var guest = "Guest";
-			}
-			else {
-				var guest = username;
-			}
-		};
-
-		$.ajaxSetup({
-		    headers: { 'Authorization': 'Token ' + tokenNumber }
-		});
-		$.ajax({
-			url:'http://localhost:8000/api/v1/photos/'
-            , type: 'GET'
-            , data: this.state
-            , success: function() {
-            	toastr.info('Signed in as ' + guest);
-                console.log("GET WORKS!");
-            }
-        }).then(function(data) {
-            for (var key in data) {
-            	var item = data[key];
-            	console.log("id: " + item.id + " user:" + item.user + " photo link: " + item.photo);
-            	var template = jQuery("<div class='col s4 image-block'><img class='col s12' src='http://127.0.0.1:8000"+item.photo+"' /><div class='img-caption'><div class='img-caption-divs'><a href='#''><i class='material-icons my-img-comment-icon'>comments</i>Comments("+item.id+")</a></div><div class='img-caption-divs'><a href='#' class='right'><i class='material-icons my-img-like-icon right'>thumb_up</i></a></div></div></div>");
-
-    			jQuery(".image-gallery-view").append(template);
-            }
-        });
+  //   			// jQuery(".image-gallery-view").append(template);
+  //   			// http://127.0.0.1:8000/api/v1/photos/"+item.id+"/like/"
+  //           	// collection += collection;
+  //           }
+  //           // console.log(collection);
+  //           // sessionStorage.setItem("collection", data);
+  //           // debugger;
+  //       });
+        // document.body.style.background = "url('/images/background1.jpg') no-repeat fixed center";
+        // console.log(sessionStorage("collection"));
+        // var collection = sessionStorage.getItem("collection");
 		return (
 			React.createElement("div", {className: "row image-gallery-bg"}, 
-				React.createElement("div", {className: "col s12"}, 
-					React.createElement("div", {className: "row image-gallery-view"}
-						
-					)
+				React.createElement("div", {className: "col-md-12"}, 
+					
+						self.state.images.map(function(item) {
+							return (
+								React.createElement("div", {className: "row image-gallery-view"}, 
+								React.createElement("div", {className: "image-block", key: item.id}, 
+									React.createElement("a", {href: '#/photo/' + item.id}, 
+										React.createElement("img", {src: 'http://127.0.0.1:8000' + item.photo, id: 'image-'+ item.id, "data-id": item.id, width: "100%", height: "100%"})
+									), 
+									React.createElement("div", {className: "img-caption"}, 
+							            React.createElement("div", {className: "img-caption-divs"}, 
+							                React.createElement("a", {href: ""}, 
+							                   	React.createElement("i", {className: "material-icons my-img-comment-icon"}, "comments"), 
+							                    "Comments"
+							                )
+							            ), 
+							            React.createElement("div", {className: "img-caption-divs"}, 
+							                React.createElement("a", {href: ""}, 
+							                    React.createElement("i", {className: "material-icons my-img-like-icon right"}, "thumb_up"), 
+							                    " "
+							                )
+							            )
+							        )
+								)
+								)
+							);
+						})
+					
 				)
 			)
 		);
@@ -32952,6 +33027,7 @@ var Login = React.createClass({displayName: "Login",
             }
         }).then(function(data) {
             sessionStorage.setItem("authToken", data.token);
+            localStorage.setItem("userId", data.id);
             var token = sessionStorage.getItem("authToken");
             console.log("Authentication Token: ", token);
             localStorage.setItem("userName", user_name);
@@ -33042,7 +33118,7 @@ var Logout = React.createClass({displayName: "Logout",
 	render: function() {
     	sessionStorage.clear();
         localStorage.clear();
-    	Router.HashLocation.push("login");
+    	Router.HashLocation.push("#");
     }
 });
 
