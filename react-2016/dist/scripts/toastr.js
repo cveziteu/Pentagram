@@ -165,10 +165,10 @@
                     onShown: undefined,
                     hideMethod: 'fadeOut',
                     hideDuration: 1000,
-                    hideEasing: 'swing',
+                    hideEasing: 'linear',
                     onHidden: undefined,
 
-                    extendedTimeOut: 1000,
+                    extendedTimeOut: 5000,
                     iconClasses: {
                         error: 'toast-error',
                         info: 'toast-info',
@@ -182,9 +182,9 @@
                     messageClass: 'toast-message',
                     target: 'body',
                     closeHtml: '<button type="button">&times;</button>',
-                    newestOnTop: true,
+                    newestOnTop: false,
                     preventDuplicates: false,
-                    progressBar: false
+                    progressBar: true
                 };
             }
 

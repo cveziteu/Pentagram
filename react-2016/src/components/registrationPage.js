@@ -54,6 +54,7 @@ var Register = React.createClass({
                 , data: this.state
                 , success: function() {
                     toastr.success("User " + user_name + " created successfully!");
+                    Router.HashLocation.push("#");
                 }
                 , error: function(response) {
                     console.log(response.responseJSON.username[0]);

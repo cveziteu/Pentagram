@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 
 
 def photos_directory(instance,filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<UUDI>-<filename>
     return 'photos/user_{0}/{1}-{2}'.format(instance.user.username, str(uuid1()), filename)
 
 class Photo(models.Model):

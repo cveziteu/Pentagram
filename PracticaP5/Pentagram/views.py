@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
-from Pentagram.models import Photo, Comment, Like
+from Pentagram.models import Photo, Comment, Like, User
 from Pentagram.serializers import UserSerializer, PhotoSerializer, CommentSerializer, LikeSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # @api_view(['POST', 'DELETE', 'PUT', 'GET']) # metoda apelata pentru post / delete / put / get
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @permission_classes((AllowAny,))
 def users(request):
     if request.method == "POST":
@@ -26,6 +26,11 @@ def users(request):
             user_serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=user_serializer.errors)
+
+    if request.method == "GET":
+        all_users = User.objects.all()
+        user_serializer = UserSerializer(all_users, many=True)
+        return Response(status=status.HTTP_200_OK, data=user_serializer.data)
 
 
 @api_view(['GET', 'POST'])
@@ -60,13 +65,12 @@ def comments(request, id_photo):
 
 
 
-@api_view(['POST','GET'])
+@api_view(['POST', 'GET', 'PUT'])
 @permission_classes((AllowAny,))
 def like(request, id_photo):
 
     if request.method == 'GET':
-        id_user = request.user.pk
-        all_likes = Like.objects.filter(photo=id_photo, user=id_user)
+        all_likes = Like.objects.filter(photo=id_photo)
         like_serializer = LikeSerializer(all_likes, many=True)
         return Response(status=status.HTTP_200_OK, data=like_serializer.data)
 
@@ -81,6 +85,11 @@ def like(request, id_photo):
             add_like = Like(user_id=id_user, photo_id=id_photo)
             add_like.save()
             return Response(status=status.HTTP_201_CREATED)
+
+    if request.method == 'PUT':
+        all_likes = Like.objects.filter(photo=id_photo).count()
+        return Response(status=status.HTTP_200_OK, data=all_likes)
+
 
 # all_likes = Like.objects.filter(photo=id_photo).count()
 

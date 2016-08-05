@@ -4,18 +4,117 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-var Home = React.createClass({
+var LikedButton = React.createClass({
 	getInitialState: function(){
-			return {
-				images: [{
-					"id": 1,
-					"user": 1,
-					"photo": "/media/photos/user_constantin/a70e9548-557e-11e6-8a53-485ab608aba0-background7.jpg"
-				}]
-			};
+		return {
+			likedStatus: ''
+		}
 	}
 	, componentWillMount: function() {
 		var self = this;
+		var userId = localStorage.getItem("userId");
+		var photoId = this.props.photoid;
+
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId +'/like/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			var count = 0;
+			for (var key in data) {
+				var item = data[key];
+				count++;
+				if (item.user == userId && item.photo == photoId) {
+					console.log("User "+ item.user + " likes photo " + photoId);
+					self.setState({likedStatus: "liked"});
+				}		
+			}
+			self.setState({likedCount: count});
+		});
+	}
+	, render: function() {
+		var photoId = this.props.photoid;
+		return (
+			<i className={'material-icons my-img-like-icon right icon-id-'+ photoId +' '+ this.state.likedStatus} data-id={photoId}>thumb_up</i>
+		);
+	}
+
+	
+});
+
+var CommentsNumber = React.createClass({
+	getInitialState: function(){
+		return {
+			nrComments: ''
+		}
+	}
+	, componentWillMount: function() {
+		var self = this;
+		var userId = localStorage.getItem("userId");
+		var photoId = this.props.photoid;
+
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId +'/comments/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			var count = 0;
+			for (var key in data) {
+				var item = data[key];
+				count++;
+				// if (item.user == userId && item.photo == photoId) {
+				// 	console.log("User "+ item.user + " likes photo " + photoId);
+				// 	self.setState({likedStatus: "liked"});
+				// }		
+			}
+			if (count == 0) {
+				self.setState({commentCount: "No Comments"});
+			}
+			else if (count == 1) {
+				self.setState({commentCount: count + " Comment"});
+			}
+			else {
+				self.setState({commentCount: count + " Comments"});
+			}
+		});
+	}
+	, render: function() {
+		var photoId = this.props.photoid;
+		return (
+			<a>
+				<i className='material-icons my-img-comment-icon'>comments</i>
+				{this.state.commentCount}
+			</a>
+		);
+	}
+
+	
+});
+
+var Home = React.createClass({
+	getInitialState: function(){
+		return {
+			images: [{
+				"id": 1,
+				"user": 1,
+				"photo": "/media/photos/user_constantin/a70e9548-557e-11e6-8a53-485ab608aba0-background7.jpg"
+			}],
+			likes: '',
+			liked: '',
+			comments: [{
+				user_id: "",
+				photo_id: "",
+				comment: "",
+			}]
+		};
+	}
+	, componentWillMount: function() {
+		var self = this;
+		var token = sessionStorage.getItem("authToken");
 		$.ajax({
 			url: 'http://127.0.0.1:8000/api/v1/photos/'
 			, type: 'GET'
@@ -23,104 +122,114 @@ var Home = React.createClass({
 
 			}
 		}).then(function(data) {
-            self.setState({images: data});
+			self.setState({images: data});
 		});
 	}
+	, photoCommentHandler: function(event) {
 
-	, PhotoCommentHandler: function(event) {
-		// var photoId = event.target.dataset.id;
-		// Router.HashLocation.push('photo/' + photoId);
 	}
-	,
-	 PhotoLikeHandler: function(event) {
-		// var photoId = event.target.dataset.id;
-		// Router.HashLocation.push('photo/' + photoId);
+	, onLikeHandler: function(event) {
+		var photoId = event.target.dataset.id;
+		var userId = localStorage.getItem("userId");
+		var token = sessionStorage.getItem("authToken");
+		var dataToSend = {user: userId, photo: photoId};
+		// toastr.info("Like button for photo [" + photoId +"] was pressed by user ("+ userId +")!");
+		$.ajax({
+			beforeSend: function (xhr) {
+		        xhr.setRequestHeader('Authorization', 'Token ' + token);
+		    }
+		    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+			, type: 'POST'
+			, error: function(xhr, textStatus, errorThrown) {
+				if (errorThrown != "FOUND") {
+					toastr.error(errorThrown);
+				}
+				else {
+					toastr.warning("You just unliked photo [ " + photoId + " ]!");
+					$.ajax({
+						beforeSend: function (xhr) {
+					        xhr.setRequestHeader('Authorization', 'Token ' + token);
+					    }
+					    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+						, type: 'PUT'
+						, error: function(xhr, textStatus, errorThrown) {
+					
+						}
+					}).then(function(data) {
+						toastr.info("Photo "+ photoId +" has now " + data + " likes");
+						$(".icon-id-"+photoId).removeClass("liked");
+					});
+				}
+			}
+		}).then(function(data) {
+			toastr.success("You liked photo [ "+ photoId +" ]! YEY!");
+			$.ajax({
+				beforeSend: function (xhr) {
+			        xhr.setRequestHeader('Authorization', 'Token ' + token);
+			    }
+			    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+				, type: 'PUT'
+				, error: function(xhr, textStatus, errorThrown) {
+
+				}
+			}).then(function(data) {
+				toastr.info("Photo has now " + data + " likes");
+				$(".icon-id-"+photoId).addClass("liked");
+			});
+		});
 	}
 	, render: function() {
 		var self = this;
+		var addButtonLocation = {
+			bottom: '25px',
+			right: '24px'
+		}
+
+		var addButtonColor = {
+			color: '#000000'
+		}
 
 		var tokenNumber = sessionStorage.getItem("authToken");
 		if (!tokenNumber) {
 			Router.HashLocation.push("login");
 		}
 		
-		// $.ajaxSetup({
-		//     headers: { 'Authorization': 'Token ' + tokenNumber }
-		// });
-		// $.ajax({
-		// 	url:'http://localhost:8000/api/v1/photos/'
-  //           , type: 'GET'
-  //           , data: this.state
-  //           , success: function() {
-  //               console.log("GET WORKS!");
-  //           }
-  //       }).then(function(data) {
-  //       	// var collection = data;
-  //       	// debugger;
-  //           for (var key in data) {
-  //           	var item = data[key];
-  //           	var template = jQuery("
-  					// <div class='col m4 image-block'>
-  					// 		<img class='col m12 img-thumbnail img-responsive' src='http://127.0.0.1:8000"+item.photo+"' />
-  					// 		<div class='img-caption'><div class='img-caption-divs'>
-  					// 			<a href='#''>
-  					// 				<i class='material-icons my-img-comment-icon'>comments</i>
-  					// 				<span class='hidden-xs'>Comments("+item.id+")</span>
-  					// 			</a>
-  					// 		</div>
-  					// 		<div class='img-caption-divs'>
-  					// 			<a href='' class='right'>
-  					// 				<i class='material-icons my-img-like-icon right'>thumb_up</i>
-  					// 			</a>
-  					// 		</div>
-  					// 	</div>
-  					// </div>");
-
-  //   			// jQuery(".image-gallery-view").append(template);
-  //   			// http://127.0.0.1:8000/api/v1/photos/"+item.id+"/like/"
-  //           	// collection += collection;
-  //           }
-  //           // console.log(collection);
-  //           // sessionStorage.setItem("collection", data);
-  //           // debugger;
-  //       });
-        // document.body.style.background = "url('/images/background1.jpg') no-repeat fixed center";
-        // console.log(sessionStorage("collection"));
-        // var collection = sessionStorage.getItem("collection");
 		return (
 			<div className="row image-gallery-bg">
 				<div className="col-md-12">
-					
+					<div className="row image-gallery-view">
 						{self.state.images.map(function(item) {
+							
 							return (
-								<div className="row image-gallery-view">
-								<div className="image-block" key={item.id} >
+							
+								<div className="image-block hoverable" key={item.id} >
 									<a href={'#/photo/' + item.id}>
 										<img src={'http://127.0.0.1:8000' + item.photo} id={'image-'+ item.id} data-id={item.id} width="100%" height="100%"/>
 									</a>
 									<div className='img-caption'>
 							            <div className='img-caption-divs'>
-							                <a href="">
-							                   	<i className='material-icons my-img-comment-icon'>comments</i>
-							                    Comments
-							                </a>
+							                <CommentsNumber photoid={item.id} />
 							            </div>
 							            <div className='img-caption-divs'>
-							                <a href="">
-							                    <i className='material-icons my-img-like-icon right' >thumb_up</i>
+							            	<a onClick={self.onLikeHandler} className="waves-effect right">
+					                    		<LikedButton photoid={item.id} />
 							                    &nbsp;
 							                </a>
 							            </div>
 							        </div>
-								</div>
-								</div>
+							    </div>
 							);
 						})}
-					
+					</div>
 				</div>
+				<div className="fixed-action-btn" style={addButtonLocation}>
+				    <a  href="/#/add-photo" className="btn-floating btn-large lime accent-3 waves-effect" id="add-img-button">
+				      <i className="large material-icons" style={addButtonColor}>add</i>
+				    </a>
+			    </div>
 			</div>
 		);
 	}
 });
 
-module.exports = Home;
+module.exports = Home, LikedButton, CommentsNumber;

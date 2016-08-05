@@ -5,7 +5,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Login = React.createClass({
-	SetInitialState: function() {
+    SetInitialState: function() {
         return {
             username:null
             , password:null
@@ -80,37 +80,37 @@ var Login = React.createClass({
         // };
         // var csrftokennumber = getCookie('csrftoken');
         
-		return (
+        return (
             <div className="container container-table all-centered">
-        		<div className="row">
-        			<div className="col-xs-12 text-center">
-        				<image src="images/logo10.png" />
-        			</div>
-            		<div className="col-xs-4 col-xs-offset-4 form-bg text-center">
-                		<h5> Login to your account</h5>
-                		<br />
-                		<form>
-                			<div className="form-group">
-    							<input type="text" className="form-control" name="username" placeholder="Username" onChange={this.userChangeHandler} />
-    						</div>
-    						<div className="form-group">
-    							<input type="password" className="form-control"  name="password" placeholder="Password" onChange={this.passwordChangeHandler} />
-    						</div>
-    						<div className="form-group">
-                        		<button name="submit" className="btn waves-effect waves-light btn-block" onClick={this.formSubmitHandler}>
+                <div className="row">
+                    <div className="col-xs-12 text-center">
+                        <image src="images/logo10.png" />
+                    </div>
+                    <div className="col-xs-4 col-xs-offset-4 form-bg text-center">
+                        <h5> Login to your account</h5>
+                        <br />
+                        <form>
+                            <div className="form-group">
+                                <input type="text" className="form-control" name="username" placeholder="Username" onChange={this.userChangeHandler} />
+                            </div>
+                            <div className="form-group">
+                                <input type="password" className="form-control"  name="password" placeholder="Password" onChange={this.passwordChangeHandler} />
+                            </div>
+                            <div className="form-group">
+                                <button name="submit" className="btn waves-effect waves-light btn-block" onClick={this.formSubmitHandler}>
                                     
                                     Login
                                 </button>
-                    		</div>
-    					</form>
-    				</div>
+                            </div>
+                        </form>
+                    </div>
                     <div className="col-md-4 col-md-offset-4 form-bg text-center">
                         Dont have an account? <Link to="register"> Sign up </Link>
                     </div>
-    			</div>
-    		</div>
-		);
-	}
+                </div>
+            </div>
+        );
+    }
 });
 
 module.exports = Login;

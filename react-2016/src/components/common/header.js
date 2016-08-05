@@ -27,7 +27,7 @@ var Header = React.createClass({
         <div className="navbar-fixed">
           <nav>
             <div className="nav-wrapper">
-              <Link to="app" className="brand-logo left"><image src="images/logo101.png" height="25px" /></Link>
+              <Link to="app" className="brand-logo left"><image src="images/logo101.png" height="40px" /></Link>
                 {show_header}
             </div>
           </nav>
@@ -63,10 +63,10 @@ var HeaderLoggedIn = React.createClass({
     };
     return (
       <ul className="right hide-on-med-and-down">
-          <li className="userinfo"> {user_name}({user_id}) </li>
-          <li><Link to="about" className="waves-effect waves-light"><i className="material-icons">add</i></Link></li>
-          <li><Link to="about" className="waves-effect waves-light"><i className="material-icons">settings</i></Link></li>
-          <li onClick={this.LogOutHandler}><a href="" className="waves-effect waves-light"><i className="material-icons">power_settings_new</i></a></li>;
+          <li className="userinfo"> {user_name} ({user_id}) </li>
+          <li><Link to="home" className="waves-effect waves-light"><i className="material-icons left">view_module</i>Photos</Link></li>
+          <li><Link to="add-photo" className="waves-effect waves-light"><i className="material-icons left">add</i>Add Photo</Link></li>
+          <li onClick={this.LogOutHandler}><a href="" className="waves-effect waves-light"><i className="material-icons left">power_settings_new</i>Logout</a></li>;
       </ul>
     );
   }

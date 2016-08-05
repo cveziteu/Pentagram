@@ -32736,6 +32736,390 @@ module.exports = require('./lib/React');
 "use strict";
 
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
+
+var CommentBlock = React.createClass({displayName: "CommentBlock",
+    getInitialState: function() {
+        return {
+        } 
+            
+    }
+    , componentWillMount: function() {
+        var self = this;
+        var userid = self.props.userID;
+        var comment = self.props.commentTEXT;
+        $.ajax ({
+            url: 'http://127.0.0.1:8000/api/v1/users/'
+            , type: 'GET'
+            , error: function(xhr, errorThrown) {
+
+            }
+            }).then(function(data) {
+                for (var key in data) {
+                    var item = data[key];
+                    if (item.id == userid) {
+                        self.setState({userName: item.username});
+                        self.setState({commentItem: comment});
+                        // console.log(self.state.commentItem);
+                    }
+                }
+            });
+    }
+    , render: function() {
+        var self = this;
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", {className: "chip"}, 
+                    React.createElement("img", {src: "/images/user-default2.jpg", alt: "Contact Person"}), 
+                    self.state.userName
+                ), 
+                React.createElement("div", {className: "chip chip-comment"}, self.state.commentItem)
+            ) 
+        );
+    }
+
+});
+
+var LikeBlock = React.createClass({displayName: "LikeBlock",
+    getInitialState: function() {
+        return {
+        } 
+            
+    }
+    , componentWillMount: function() {
+        var self = this;
+        var userid = self.props.userID;
+        $.ajax ({
+            url: 'http://127.0.0.1:8000/api/v1/users/'
+            , type: 'GET'
+            , error: function(xhr, errorThrown) {
+
+            }
+            }).then(function(data) {
+                for (var key in data) {
+                    var item = data[key];
+                    if (item.id == userid) {
+                        self.setState({userName: item.username});
+                    }
+                }
+            });
+    }
+    , render: function() {
+        var self = this;
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", {className: "chip"}, 
+                    "Posted by ", self.state.userName
+                )
+            ) 
+        );
+    }
+
+});
+
+
+var PostedByBlock = React.createClass({displayName: "PostedByBlock",
+    getInitialState: function() {
+        return {
+        } 
+            
+    }
+    , componentWillMount: function() {
+        var self = this;
+        var userid = self.props.userID;
+        $.ajax ({
+            url: 'http://127.0.0.1:8000/api/v1/users/'
+            , type: 'GET'
+            , error: function(xhr, errorThrown) {
+
+            }
+            }).then(function(data) {
+                for (var key in data) {
+                    var item = data[key];
+                    if (item.id == userid) {
+                        self.setState({userName: item.username});
+                    }
+                }
+            });
+    }
+    , render: function() {
+        var self = this;
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", null, 
+                    "Posted by ", self.state.userName
+                )
+            ) 
+        );
+    }
+
+});
+
+var LikeButton = React.createClass({displayName: "LikeButton",
+    getInitialState: function(){
+        return {
+            likedStatus: ''
+        }
+    }
+    , componentWillMount: function() {
+        var self = this;
+        var userId = localStorage.getItem("userId");
+        var photoId = this.props.photoid;
+
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId +'/like/'
+            , type: 'GET'
+            , error: function(xhr, textStatus, errorThrown) {
+
+            }
+        }).then(function(data) {
+            var count = 0;
+            for (var key in data) {
+                var item = data[key];
+                count++;
+                if (item.user == userId && item.photo == photoId) {
+                    console.log("User "+ item.user + " likes photo " + photoId);
+                    self.setState({likedStatus: "liked"});
+                }       
+            }
+            self.setState({likedCount: count});
+        });
+    }
+    , render: function() {
+        var photoId = this.props.photoid;
+        return (
+            React.createElement("i", {className: 'material-icons my-img-like-icon right icon-id-'+ photoId +' '+ this.state.likedStatus, "data-id": photoId}, "thumb_up")
+        );
+    }
+
+    
+});
+
+var PhotoPage = React.createClass({displayName: "PhotoPage",
+    getInitialState: function() {
+        return {
+            comments: [],
+            likes: '',
+            comment: ''
+        }
+    }
+	, componentWillMount: function() {
+        var self = this;
+        var photoId = self.props.params.id;
+        var userId = localStorage.getItem("userId");
+
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/v1/photos/'
+            , type: 'GET'
+            , error: function(xhr, textStatus, errorThrown) {
+            }
+            }).then(function(data) {
+                for (var key in data) {
+                    var item = data[key];
+                    if (item.id == photoId) {
+                        self.setState({imageLink: item.photo});
+                        console.log(item.photo);
+                        self.setState({imageOwner: item.user});
+                        console.log("self.state.imageOwner: " + self.state.imageOwner);
+                    }
+                }
+        });
+
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/v1/photos/' + photoId + '/comments/'
+            , type: 'GET'
+            , error: function(xhr, textStatus, errorThrown) {
+            }
+            }).then(function(commentData) {
+                self.setState({comments: commentData});
+                // console.log("Comments: " + self.state.comments);
+        });
+
+        $.ajax({
+            url: 'http://127.0.0.1:8000/api/v1/photos/' + photoId + '/like/'
+            , type: 'GET'
+            , error: function(xhr, textStatus, errorThrown) {
+            }
+            }).then(function(likesData) {
+                self.setState({likes: likesData});
+                for (var key in likesData) {
+                    var item = likesData[key];
+                    if (item.user == userId && item.photo == photoId) {
+                        $("#like-img-button").removeClass("grey");
+                        $("#like-img-button").addClass("blue");
+                    }       
+                }
+        });
+
+        
+    }
+    , commentChangeHandler: function(event) {
+        this.setState({textareaComment: event.target.value});
+    }
+    , formSubmitHandler: function(event) {
+        var self = this;
+        event.preventDefault();
+        var photoId = this.props.params.id;
+        var userId = localStorage.getItem("userId");
+        var commentToAdd = self.state.textareaComment;
+        if ((document.getElementById('textareaComment').value.length == 0) || (document.getElementById('textareaComment').value.length < 3)) {
+            toastr.error("Please insert a comment with at least 3 characters!");
+        }
+        else {
+            var sendData = {user_id: userId, photo_id: photoId, comment: commentToAdd};
+            // console.log(sendData);
+
+            $.ajax({
+                url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/comments/'
+                , type: 'POST'
+                , data: sendData
+                , error: function(xhr, errorThrown) {
+                    toastr.error(errorThrown);
+                }
+            }).then(function(data) {
+                toastr.success("You posted a comment!");
+                setTimeout(function(){
+                   window.location.reload(1);
+                }, 800);
+            });
+        } 
+        
+    }
+    , onLikeHandler: function(event) {
+        var photoId = this.props.params.id;
+        var userId = localStorage.getItem("userId");
+        var token = sessionStorage.getItem("authToken");
+        var dataToSend = {user: userId, photo: photoId};
+        // toastr.info("Like button for photo [" + photoId +"] was pressed by user ("+ userId +")!");
+        $.ajax({
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Token ' + token);
+            }
+            , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+            , type: 'POST'
+            , error: function(xhr, textStatus, errorThrown) {
+                if (errorThrown != "FOUND") {
+                    toastr.error(errorThrown);
+                }
+                else {
+                    toastr.warning("You just unliked photo [ " + photoId + " ]!");
+                    $.ajax({
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', 'Token ' + token);
+                        }
+                        , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+                        , type: 'PUT'
+                        , error: function(xhr, textStatus, errorThrown) {
+                    
+                        }
+                    }).then(function(data) {
+                        toastr.info("Photo "+ photoId +" has now " + data + " likes");
+                        $("#like-img-button").removeClass("blue");
+                        $("#like-img-button").addClass("grey");
+
+                    });
+                }
+            }
+        }).then(function(data) {
+            toastr.success("You liked photo [ "+ photoId +" ]! YEY!");
+            $.ajax({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Token ' + token);
+                }
+                , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+                , type: 'PUT'
+                , error: function(xhr, textStatus, errorThrown) {
+
+                }
+            }).then(function(data) {
+                toastr.info("Photo has now " + data + " likes");
+                $("#like-img-button").removeClass("grey");
+                $("#like-img-button").addClass("blue");
+            });
+        });
+    }
+    , render: function() {
+        var self = this;
+        var likeButtonLocation = {
+             bottom: '100px',
+             right: '24px',
+             color: 'black'
+        }
+
+        var addButtonLocation = {
+            bottom: '25px',
+            right: '24px'
+        }
+
+        var addButtonColor = {
+            color: '#000000'
+        }
+        var username = localStorage.getItem("userName");
+		var tokenNumber = sessionStorage.getItem("authToken");
+        var photoId = this.props.params.id;
+        return (
+			React.createElement("div", {className: "row image-gallery-bg center-align"}, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col m8 offset-m2 photo-container"}, 
+                        React.createElement("image", {className: "photo-block", src: 'http://127.0.0.1:8000' + self.state.imageLink})
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("form", null, 
+                        React.createElement("div", {className: "col m8 offset-m2 form-group"}, 
+                            React.createElement("textarea", {type: "text", className: "form-control", name: "textareaComment", id: "textareaComment", placeholder: "Write your comment ...", onChange: self.commentChangeHandler})
+                        ), 
+                        React.createElement("div", {className: "col m8 offset-m2 form-group right-align"}, 
+                            React.createElement("button", {name: "submit", className: "btn waves-effect waves-light", onClick: self.formSubmitHandler}, 
+                                
+                                "Submit"
+                            )
+                        )
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col m8 offset-m2 photo-container"}, 
+                        React.createElement("h5", {className: "left-align"}, " COMMENTS (", self.state.comments.length, ")"), 
+                        React.createElement("div", {className: "text-left"}, 
+                            self.state.comments.map(function(item) {
+                                return (
+                                    React.createElement(CommentBlock, {key: item.id, userID: item.user_id, commentTEXT: item.comment})
+                                )   
+                            }), 
+                            self.state.comments.length == 0 ? React.createElement("div", null, " No Comments "): ''
+                        )
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col m8 offset-m2 photo-container"}, 
+                        React.createElement("h5", {className: "left-align"}, 
+                            self.state.likes.length == 0 ? React.createElement("div", null, " NO LIKES ") : '', 
+                            self.state.likes.length > 0 ? React.createElement("div", null, "LIKES (", self.state.likes.length, ") "): ''
+                        )
+                    )
+                ), 
+                React.createElement("div", {className: "fixed-action-btn", style: likeButtonLocation}, 
+                    React.createElement("a", {onClick: self.onLikeHandler, className: "btn-floating btn-large grey darken-3 waves-effect", id: "like-img-button"}, 
+                      React.createElement("i", {className: "large material-icons"}, "thumb_up")
+                    )
+                ), 
+                React.createElement("div", {className: "fixed-action-btn", style: addButtonLocation}, 
+                    React.createElement("a", {href: "/#/add-photo", className: "btn-floating btn-large lime accent-3 waves-effect", id: "add-img-button"}, 
+                      React.createElement("i", {className: "large material-icons", style: addButtonColor}, "add")
+                    )
+                )
+			)
+		);
+	}
+});
+
+module.exports = PhotoPage, CommentBlock, LikeBlock, PostedByBlock;
+
+},{"react":199,"react-router":29}],201:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
 
 var About = React.createClass({displayName: "About",
 	render: function () {
@@ -32761,7 +33145,82 @@ var About = React.createClass({displayName: "About",
 
 module.exports = About;
 
-},{"react":199}],201:[function(require,module,exports){
+},{"react":199}],202:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
+
+var addPhoto = React.createClass({displayName: "addPhoto",
+	SetInitialState: function() {
+        return {
+            user: '',
+
+        }
+    }
+    , photoChangeHandler: function(event) {
+        this.setState({photo: event.target.value});
+    }
+    , formSubmitHandler: function(event) {
+        event.preventDefault();
+
+        var userId = localStorage.getItem("userId");
+        // var photoAdded = document.getElementById("fileInput").files[0].name;
+        // var sendData = {user: userId, photo: photoAdded};
+        // var sendData = {user: userId, photo: this.state.photo};
+        // console.log(sendData);
+
+        this.setState({user: userId});
+        console.log(this.state);
+
+        var data = new FormData();
+            data.append('user', "1");
+            if ($('input').val() !== "") {
+                data.append('photo', $('input').prop('files')[0]);
+            }
+        $.ajax({
+            url:'http://localhost:8000/api/v1/photos/'
+            , type: 'POST'
+            , contentType: false
+            , data: data
+            , processData:false
+            , error: function(xhr, errorThrown) {
+                toastr.error(errorThrown);
+                console.log(data);
+            }
+        }).then(function(data) {
+            Router.HashLocation.push("#");
+        });
+    }
+    , render: function() {        
+		return (
+            React.createElement("div", {className: "container container-table all-centered"}, 
+        		React.createElement("div", {className: "row"}, 
+            		React.createElement("div", {className: "col-xs-4 col-xs-offset-4 form-bg text-center"}, 
+                		React.createElement("h5", null, " Add your photo"), 
+                		React.createElement("br", null), 
+                		React.createElement("form", null, 
+                			React.createElement("div", {className: "form-group"}, 
+    							React.createElement("input", {type: "file", accept: "image/*", className: "form-control", name: "photo", id: "fileInput"})
+    						), 
+    						React.createElement("div", {className: "form-group"}, 
+                        		React.createElement("button", {name: "submit", className: "btn waves-effect waves-light btn-block", onClick: this.formSubmitHandler}, 
+                                    
+                                    "Add"
+                                )
+                    		)
+    					)
+    				)
+    			)
+    		)
+		);
+	}
+});
+
+module.exports = addPhoto;
+
+},{"react":199,"react-router":29}],203:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -32784,7 +33243,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":202,"jquery":3,"react":199,"react-router":29}],202:[function(require,module,exports){
+},{"./common/header":204,"jquery":3,"react":199,"react-router":29}],204:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32814,7 +33273,7 @@ var Header = React.createClass({displayName: "Header",
         React.createElement("div", {className: "navbar-fixed"}, 
           React.createElement("nav", null, 
             React.createElement("div", {className: "nav-wrapper"}, 
-              React.createElement(Link, {to: "app", className: "brand-logo left"}, React.createElement("image", {src: "images/logo101.png", height: "25px"})), 
+              React.createElement(Link, {to: "app", className: "brand-logo left"}, React.createElement("image", {src: "images/logo101.png", height: "40px"})), 
                 show_header
             )
           )
@@ -32850,10 +33309,10 @@ var HeaderLoggedIn = React.createClass({displayName: "HeaderLoggedIn",
     };
     return (
       React.createElement("ul", {className: "right hide-on-med-and-down"}, 
-          React.createElement("li", {className: "userinfo"}, " ", user_name, "(", user_id, ") "), 
-          React.createElement("li", null, React.createElement(Link, {to: "about", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "add"))), 
-          React.createElement("li", null, React.createElement(Link, {to: "about", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "settings"))), 
-          React.createElement("li", {onClick: this.LogOutHandler}, React.createElement("a", {href: "", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons"}, "power_settings_new"))), ";"
+          React.createElement("li", {className: "userinfo"}, " ", user_name, " (", user_id, ") "), 
+          React.createElement("li", null, React.createElement(Link, {to: "home", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons left"}, "view_module"), "Photos")), 
+          React.createElement("li", null, React.createElement(Link, {to: "add-photo", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons left"}, "add"), "Add Photo")), 
+          React.createElement("li", {onClick: this.LogOutHandler}, React.createElement("a", {href: "", className: "waves-effect waves-light"}, React.createElement("i", {className: "material-icons left"}, "power_settings_new"), "Logout")), ";"
       )
     );
   }
@@ -32861,25 +33320,124 @@ var HeaderLoggedIn = React.createClass({displayName: "HeaderLoggedIn",
 
 
 module.exports = Header, HeaderLoggedIn, HeaderLoggedOut;
-},{"react":199,"react-router":29}],203:[function(require,module,exports){
+},{"react":199,"react-router":29}],205:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-var Home = React.createClass({displayName: "Home",
+var LikedButton = React.createClass({displayName: "LikedButton",
 	getInitialState: function(){
-			return {
-				images: [{
-					"id": 1,
-					"user": 1,
-					"photo": "/media/photos/user_constantin/a70e9548-557e-11e6-8a53-485ab608aba0-background7.jpg"
-				}]
-			};
+		return {
+			likedStatus: ''
+		}
 	}
 	, componentWillMount: function() {
 		var self = this;
+		var userId = localStorage.getItem("userId");
+		var photoId = this.props.photoid;
+
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId +'/like/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			var count = 0;
+			for (var key in data) {
+				var item = data[key];
+				count++;
+				if (item.user == userId && item.photo == photoId) {
+					console.log("User "+ item.user + " likes photo " + photoId);
+					self.setState({likedStatus: "liked"});
+				}		
+			}
+			self.setState({likedCount: count});
+		});
+	}
+	, render: function() {
+		var photoId = this.props.photoid;
+		return (
+			React.createElement("i", {className: 'material-icons my-img-like-icon right icon-id-'+ photoId +' '+ this.state.likedStatus, "data-id": photoId}, "thumb_up")
+		);
+	}
+
+	
+});
+
+var CommentsNumber = React.createClass({displayName: "CommentsNumber",
+	getInitialState: function(){
+		return {
+			nrComments: ''
+		}
+	}
+	, componentWillMount: function() {
+		var self = this;
+		var userId = localStorage.getItem("userId");
+		var photoId = this.props.photoid;
+
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId +'/comments/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			var count = 0;
+			for (var key in data) {
+				var item = data[key];
+				count++;
+				// if (item.user == userId && item.photo == photoId) {
+				// 	console.log("User "+ item.user + " likes photo " + photoId);
+				// 	self.setState({likedStatus: "liked"});
+				// }		
+			}
+			if (count == 0) {
+				self.setState({commentCount: "No Comments"});
+			}
+			else if (count == 1) {
+				self.setState({commentCount: count + " Comment"});
+			}
+			else {
+				self.setState({commentCount: count + " Comments"});
+			}
+		});
+	}
+	, render: function() {
+		var photoId = this.props.photoid;
+		return (
+			React.createElement("a", null, 
+				React.createElement("i", {className: "material-icons my-img-comment-icon"}, "comments"), 
+				this.state.commentCount
+			)
+		);
+	}
+
+	
+});
+
+var Home = React.createClass({displayName: "Home",
+	getInitialState: function(){
+		return {
+			images: [{
+				"id": 1,
+				"user": 1,
+				"photo": "/media/photos/user_constantin/a70e9548-557e-11e6-8a53-485ab608aba0-background7.jpg"
+			}],
+			likes: '',
+			liked: '',
+			comments: [{
+				user_id: "",
+				photo_id: "",
+				comment: "",
+			}]
+		};
+	}
+	, componentWillMount: function() {
+		var self = this;
+		var token = sessionStorage.getItem("authToken");
 		$.ajax({
 			url: 'http://127.0.0.1:8000/api/v1/photos/'
 			, type: 'GET'
@@ -32887,109 +33445,119 @@ var Home = React.createClass({displayName: "Home",
 
 			}
 		}).then(function(data) {
-            self.setState({images: data});
+			self.setState({images: data});
 		});
 	}
+	, photoCommentHandler: function(event) {
 
-	, PhotoCommentHandler: function(event) {
-		// var photoId = event.target.dataset.id;
-		// Router.HashLocation.push('photo/' + photoId);
 	}
-	,
-	 PhotoLikeHandler: function(event) {
-		// var photoId = event.target.dataset.id;
-		// Router.HashLocation.push('photo/' + photoId);
+	, onLikeHandler: function(event) {
+		var photoId = event.target.dataset.id;
+		var userId = localStorage.getItem("userId");
+		var token = sessionStorage.getItem("authToken");
+		var dataToSend = {user: userId, photo: photoId};
+		// toastr.info("Like button for photo [" + photoId +"] was pressed by user ("+ userId +")!");
+		$.ajax({
+			beforeSend: function (xhr) {
+		        xhr.setRequestHeader('Authorization', 'Token ' + token);
+		    }
+		    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+			, type: 'POST'
+			, error: function(xhr, textStatus, errorThrown) {
+				if (errorThrown != "FOUND") {
+					toastr.error(errorThrown);
+				}
+				else {
+					toastr.warning("You just unliked photo [ " + photoId + " ]!");
+					$.ajax({
+						beforeSend: function (xhr) {
+					        xhr.setRequestHeader('Authorization', 'Token ' + token);
+					    }
+					    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+						, type: 'PUT'
+						, error: function(xhr, textStatus, errorThrown) {
+					
+						}
+					}).then(function(data) {
+						toastr.info("Photo "+ photoId +" has now " + data + " likes");
+						$(".icon-id-"+photoId).removeClass("liked");
+					});
+				}
+			}
+		}).then(function(data) {
+			toastr.success("You liked photo [ "+ photoId +" ]! YEY!");
+			$.ajax({
+				beforeSend: function (xhr) {
+			        xhr.setRequestHeader('Authorization', 'Token ' + token);
+			    }
+			    , url: 'http://127.0.0.1:8000/api/v1/photos/'+ photoId + '/like/'
+				, type: 'PUT'
+				, error: function(xhr, textStatus, errorThrown) {
+
+				}
+			}).then(function(data) {
+				toastr.info("Photo has now " + data + " likes");
+				$(".icon-id-"+photoId).addClass("liked");
+			});
+		});
 	}
 	, render: function() {
 		var self = this;
+		var addButtonLocation = {
+			bottom: '25px',
+			right: '24px'
+		}
+
+		var addButtonColor = {
+			color: '#000000'
+		}
 
 		var tokenNumber = sessionStorage.getItem("authToken");
 		if (!tokenNumber) {
 			Router.HashLocation.push("login");
 		}
 		
-		// $.ajaxSetup({
-		//     headers: { 'Authorization': 'Token ' + tokenNumber }
-		// });
-		// $.ajax({
-		// 	url:'http://localhost:8000/api/v1/photos/'
-  //           , type: 'GET'
-  //           , data: this.state
-  //           , success: function() {
-  //               console.log("GET WORKS!");
-  //           }
-  //       }).then(function(data) {
-  //       	// var collection = data;
-  //       	// debugger;
-  //           for (var key in data) {
-  //           	var item = data[key];
-  //           	var template = jQuery("
-  					// <div class='col m4 image-block'>
-  					// 		<img class='col m12 img-thumbnail img-responsive' src='http://127.0.0.1:8000"+item.photo+"' />
-  					// 		<div class='img-caption'><div class='img-caption-divs'>
-  					// 			<a href='#''>
-  					// 				<i class='material-icons my-img-comment-icon'>comments</i>
-  					// 				<span class='hidden-xs'>Comments("+item.id+")</span>
-  					// 			</a>
-  					// 		</div>
-  					// 		<div class='img-caption-divs'>
-  					// 			<a href='' class='right'>
-  					// 				<i class='material-icons my-img-like-icon right'>thumb_up</i>
-  					// 			</a>
-  					// 		</div>
-  					// 	</div>
-  					// </div>");
-
-  //   			// jQuery(".image-gallery-view").append(template);
-  //   			// http://127.0.0.1:8000/api/v1/photos/"+item.id+"/like/"
-  //           	// collection += collection;
-  //           }
-  //           // console.log(collection);
-  //           // sessionStorage.setItem("collection", data);
-  //           // debugger;
-  //       });
-        // document.body.style.background = "url('/images/background1.jpg') no-repeat fixed center";
-        // console.log(sessionStorage("collection"));
-        // var collection = sessionStorage.getItem("collection");
 		return (
 			React.createElement("div", {className: "row image-gallery-bg"}, 
 				React.createElement("div", {className: "col-md-12"}, 
-					
+					React.createElement("div", {className: "row image-gallery-view"}, 
 						self.state.images.map(function(item) {
+							
 							return (
-								React.createElement("div", {className: "row image-gallery-view"}, 
-								React.createElement("div", {className: "image-block", key: item.id}, 
+							
+								React.createElement("div", {className: "image-block hoverable", key: item.id}, 
 									React.createElement("a", {href: '#/photo/' + item.id}, 
 										React.createElement("img", {src: 'http://127.0.0.1:8000' + item.photo, id: 'image-'+ item.id, "data-id": item.id, width: "100%", height: "100%"})
 									), 
 									React.createElement("div", {className: "img-caption"}, 
 							            React.createElement("div", {className: "img-caption-divs"}, 
-							                React.createElement("a", {href: ""}, 
-							                   	React.createElement("i", {className: "material-icons my-img-comment-icon"}, "comments"), 
-							                    "Comments"
-							                )
+							                React.createElement(CommentsNumber, {photoid: item.id})
 							            ), 
 							            React.createElement("div", {className: "img-caption-divs"}, 
-							                React.createElement("a", {href: ""}, 
-							                    React.createElement("i", {className: "material-icons my-img-like-icon right"}, "thumb_up"), 
+							            	React.createElement("a", {onClick: self.onLikeHandler, className: "waves-effect right"}, 
+					                    		React.createElement(LikedButton, {photoid: item.id}), 
 							                    " "
 							                )
 							            )
 							        )
-								)
-								)
+							    )
 							);
 						})
-					
-				)
+					)
+				), 
+				React.createElement("div", {className: "fixed-action-btn", style: addButtonLocation}, 
+				    React.createElement("a", {href: "/#/add-photo", className: "btn-floating btn-large lime accent-3 waves-effect", id: "add-img-button"}, 
+				      React.createElement("i", {className: "large material-icons", style: addButtonColor}, "add")
+				    )
+			    )
 			)
 		);
 	}
 });
 
-module.exports = Home;
+module.exports = Home, LikedButton, CommentsNumber;
 
-},{"react":199,"react-router":29}],204:[function(require,module,exports){
+},{"react":199,"react-router":29}],206:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32997,7 +33565,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Login = React.createClass({displayName: "Login",
-	SetInitialState: function() {
+    SetInitialState: function() {
         return {
             username:null
             , password:null
@@ -33072,58 +33640,42 @@ var Login = React.createClass({displayName: "Login",
         // };
         // var csrftokennumber = getCookie('csrftoken');
         
-		return (
+        return (
             React.createElement("div", {className: "container container-table all-centered"}, 
-        		React.createElement("div", {className: "row"}, 
-        			React.createElement("div", {className: "col-xs-12 text-center"}, 
-        				React.createElement("image", {src: "images/logo10.png"})
-        			), 
-            		React.createElement("div", {className: "col-xs-4 col-xs-offset-4 form-bg text-center"}, 
-                		React.createElement("h5", null, " Login to your account"), 
-                		React.createElement("br", null), 
-                		React.createElement("form", null, 
-                			React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "text", className: "form-control", name: "username", placeholder: "Username", onChange: this.userChangeHandler})
-    						), 
-    						React.createElement("div", {className: "form-group"}, 
-    							React.createElement("input", {type: "password", className: "form-control", name: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
-    						), 
-    						React.createElement("div", {className: "form-group"}, 
-                        		React.createElement("button", {name: "submit", className: "btn waves-effect waves-light btn-block", onClick: this.formSubmitHandler}, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-xs-12 text-center"}, 
+                        React.createElement("image", {src: "images/logo10.png"})
+                    ), 
+                    React.createElement("div", {className: "col-xs-4 col-xs-offset-4 form-bg text-center"}, 
+                        React.createElement("h5", null, " Login to your account"), 
+                        React.createElement("br", null), 
+                        React.createElement("form", null, 
+                            React.createElement("div", {className: "form-group"}, 
+                                React.createElement("input", {type: "text", className: "form-control", name: "username", placeholder: "Username", onChange: this.userChangeHandler})
+                            ), 
+                            React.createElement("div", {className: "form-group"}, 
+                                React.createElement("input", {type: "password", className: "form-control", name: "password", placeholder: "Password", onChange: this.passwordChangeHandler})
+                            ), 
+                            React.createElement("div", {className: "form-group"}, 
+                                React.createElement("button", {name: "submit", className: "btn waves-effect waves-light btn-block", onClick: this.formSubmitHandler}, 
                                     
                                     "Login"
                                 )
-                    		)
-    					)
-    				), 
+                            )
+                        )
+                    ), 
                     React.createElement("div", {className: "col-md-4 col-md-offset-4 form-bg text-center"}, 
                         "Dont have an account? ", React.createElement(Link, {to: "register"}, " Sign up ")
                     )
-    			)
-    		)
-		);
-	}
+                )
+            )
+        );
+    }
 });
 
 module.exports = Login;
 
-},{"react":199,"react-router":29}],205:[function(require,module,exports){
-"use strict";
-
-var React = require('react');
-var Router = require('react-router');
-var Link = Router.Link;
-
-var Logout = React.createClass({displayName: "Logout",
-	render: function() {
-    	sessionStorage.clear();
-        localStorage.clear();
-    	Router.HashLocation.push("#");
-    }
-});
-
-module.exports = Logout;
-},{"react":199,"react-router":29}],206:[function(require,module,exports){
+},{"react":199,"react-router":29}],207:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -33143,7 +33695,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":199,"react-router":29}],207:[function(require,module,exports){
+},{"react":199,"react-router":29}],208:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -33200,6 +33752,7 @@ var Register = React.createClass({displayName: "Register",
                 , data: this.state
                 , success: function() {
                     toastr.success("User " + user_name + " created successfully!");
+                    Router.HashLocation.push("#");
                 }
                 , error: function(response) {
                     console.log(response.responseJSON.username[0]);
@@ -33255,7 +33808,7 @@ var Register = React.createClass({displayName: "Register",
 
 module.exports = Register;
 
-},{"react":199,"react-router":29}],208:[function(require,module,exports){
+},{"react":199,"react-router":29}],209:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -33265,7 +33818,7 @@ var routes = require('./routes');
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./routes":209,"react":199,"react-router":29}],209:[function(require,module,exports){
+},{"./routes":210,"react":199,"react-router":29}],210:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -33278,14 +33831,19 @@ var Redirect = Router.Redirect;
 
 var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: require('./components/app')}, 
-  	"//  Default Page load - login page", 
+  	"//  Default Page load - HomePage", 
     React.createElement(DefaultRoute, {handler: require('./components/homePage')}), 
+    "// Home Page", 
+    React.createElement(Route, {name: "home", handler: require('./components/homePage')}), 
+    "// About Page", 
     React.createElement(Route, {name: "about", handler: require('./components/about/aboutPage')}), 
   	"//  Login Page",  
     React.createElement(Route, {name: "login", handler: require('./components/loginPage')}), 
-    React.createElement(Route, {name: "logout", handler: require('./components/logoutPage')}), 
   	"//  Registration Page",  
     React.createElement(Route, {name: "register", handler: require('./components/registrationPage')}), 
+    "//  Single Photo Page + comments and likes", 
+    React.createElement(Route, {name: "photo/:id", handler: require('./components/PhotoPage')}), 
+    React.createElement(Route, {name: "add-photo", handler: require('./components/addPhoto')}), 
     React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')}), 
     "// do the redirect if route fails", 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
@@ -33295,4 +33853,4 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/aboutPage":200,"./components/app":201,"./components/homePage":203,"./components/loginPage":204,"./components/logoutPage":205,"./components/notFoundPage":206,"./components/registrationPage":207,"react":199,"react-router":29}]},{},[208]);
+},{"./components/PhotoPage":200,"./components/about/aboutPage":201,"./components/addPhoto":202,"./components/app":203,"./components/homePage":205,"./components/loginPage":206,"./components/notFoundPage":207,"./components/registrationPage":208,"react":199,"react-router":29}]},{},[209]);
