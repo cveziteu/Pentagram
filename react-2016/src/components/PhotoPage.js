@@ -268,7 +268,7 @@ var PhotoPage = React.createClass({
                     toastr.error(errorThrown);
                 }
                 else {
-                    toastr.warning("You just unliked photo [ " + photoId + " ]!");
+                    toastr.warning("You just unliked photo #" + photoId + "  !");
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader('Authorization', 'Token ' + token);
@@ -279,7 +279,7 @@ var PhotoPage = React.createClass({
                     
                         }
                     }).then(function(data) {
-                        toastr.info("Photo "+ photoId +" has now " + data + " likes");
+                        toastr.info("Photo #"+ photoId +" has now " + data + " likes");
                         $("#like-img-button").removeClass("blue");
                         $("#like-img-button").addClass("grey");
 
@@ -287,7 +287,7 @@ var PhotoPage = React.createClass({
                 }
             }
         }).then(function(data) {
-            toastr.success("You liked photo [ "+ photoId +" ]! YEY!");
+            toastr.success("You liked photo #"+ photoId +" ! YEY!");
             $.ajax({
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', 'Token ' + token);
@@ -298,7 +298,7 @@ var PhotoPage = React.createClass({
 
                 }
             }).then(function(data) {
-                toastr.info("Photo has now " + data + " likes");
+                toastr.info("Photo #"+ photoId +" has now " + data + " likes!");
                 $("#like-img-button").removeClass("grey");
                 $("#like-img-button").addClass("blue");
             });

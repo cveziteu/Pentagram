@@ -29,7 +29,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from Pentagram.views import comments, like, users, photos, CustomObtainAuthToken
+from Pentagram.views import comments, like, users, photos, delete, CustomObtainAuthToken
 from rest_framework.authtoken import views as authtoken_views
 
 urlpatterns = patterns('',
@@ -44,6 +44,7 @@ urlpatterns = patterns('',
                        url(r'^api/v1/photos/$', photos, name='photos'),
                        url(r'^api/v1/photos/(?P<id_photo>[0-9]*)/comments/$', comments, name='comments'),
                        url(r'^api/v1/photos/(?P<id_photo>[0-9]*)/like/$', like, name='like'),
+                       url(r'^api/v1/photos/(?P<id_photo>[0-9]*)/delete/$', delete, name='delete'),
                        ) \
               + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

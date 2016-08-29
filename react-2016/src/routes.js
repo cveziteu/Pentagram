@@ -22,6 +22,7 @@ var routes = (
     <Route name="register" handler={require('./components/registrationPage')} />
     //  Single Photo Page + comments and likes
     <Route name="photo/:id" handler={require('./components/PhotoPage')} />
+    <Route name="my-photos" handler={require('./components/myPhotosPage')} />
     <Route name="add-photo" handler={require('./components/addPhoto')} />
     <NotFoundRoute handler={require('./components/notFoundPage')} />
     // do the redirect if route fails

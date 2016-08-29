@@ -66,6 +66,7 @@ var HeaderLoggedIn = React.createClass({
           <li className="userinfo"> {user_name} ({user_id}) </li>
           <li><Link to="home" className="waves-effect waves-light"><i className="material-icons left">view_module</i>Photos</Link></li>
           <li><Link to="add-photo" className="waves-effect waves-light"><i className="material-icons left">add</i>Add Photo</Link></li>
+          <li><Link to="my-photos" className="waves-effect waves-light"><i className="material-icons left">dashboard</i>My Photos</Link></li>
           <li onClick={this.LogOutHandler}><a href="" className="waves-effect waves-light"><i className="material-icons left">power_settings_new</i>Logout</a></li>;
       </ul>
     );

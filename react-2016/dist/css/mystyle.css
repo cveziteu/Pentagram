@@ -214,7 +214,8 @@ i.my-img-like-icon {
 .image-block > div.img-caption > div.img-caption-divs > a > i.liked {
     font-size: 20px;
     /*color: #64b5f6;*/
-    color: #c6ff00;
+    /*color: #c6ff00;*/
+    color: #ccff33;
     text-decoration: none;
     cursor: pointer;
     -webkit-transition: color 1s; /* Safari */
@@ -307,4 +308,40 @@ hr.dotted {
 .comment-block-comment {
     width: 50%;
     display: inline-block;
+}
+
+.img-delete {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 38px;
+    height: 15px;
+    background: #222;
+    -webkit-transition: background 1s; /* Safari */
+    transition: background 1s;
+    /*border: 1px dashed white;*/
+    outline: 1px solid black;
+    font-size: 10px;
+    padding-left: 5px;
+}
+.img-delete .img-delete-button {
+    position: absolute;
+    color: white;
+}
+
+
+.img-delete:hover {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 72px;
+    height: 30px;
+    background: red;
+    color: yellow;
+    -webkit-transition: background 0.3s, width 0.3s, height 0.3s, color 0.4s; /* Safari */
+    transition: background 0.3s, width 0.3s, height 0.3s, color 0.4s;
+    cursor: pointer;
+    font-size: 20px;
+    padding-left: 8px;
+
 }

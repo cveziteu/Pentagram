@@ -33,7 +33,7 @@ def users(request):
         return Response(status=status.HTTP_200_OK, data=user_serializer.data)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes((AllowAny,))
 def photos(request):
     if request.method == 'GET':
@@ -47,6 +47,31 @@ def photos(request):
             photo_serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=photo_serializer.errors)
+
+    if request.method == 'PUT':
+        id_user = request.user.id
+        # photo = Photo.objects.get(pk=id_photo)
+        try:
+            deleted_photo = Photo.objects.get(photo=id_photo, user=id_user)
+            deleted_photo.delete()
+            return Response(status=status.HTTP_302_FOUND)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes((AllowAny,))
+def delete(request, id_photo):
+
+    if request.method == 'PUT':
+        id_user = request.user.id
+        try:
+            deleted_photo = Photo.objects.get(id=id_photo, user=id_user)
+            deleted_photo.delete()
+            return Response(status=status.HTTP_302_FOUND)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 
 @api_view(['GET', 'POST'])

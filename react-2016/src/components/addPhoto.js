@@ -27,10 +27,11 @@ var addPhoto = React.createClass({
         console.log(this.state);
 
         var data = new FormData();
-            data.append('user', "1");
+            data.append('user', userId);
             if ($('input').val() !== "") {
                 data.append('photo', $('input').prop('files')[0]);
             }
+            debugger;
         $.ajax({
             url:'http://localhost:8000/api/v1/photos/'
             , type: 'POST'
